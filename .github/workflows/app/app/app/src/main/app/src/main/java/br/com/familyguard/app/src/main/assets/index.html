@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Family Guard</title>
+
+<style>
+* { box-sizing:border-box; }
+
+body {
+    margin:0;
+    background:#10131b;
+    color:#fff;
+    font-family:Arial,sans-serif;
+}
+
+header {
+    padding:24px;
+    background:#191f2d;
+}
+
+h1 { color:#8db7ff; }
+
+main {
+    padding:16px;
+    max-width:700px;
+    margin:auto;
+}
+
+.card {
+    background:#1a2130;
+    border:1px solid #30394c;
+    border-radius:15px;
+    padding:16px;
+    margin-bottom:14px;
+}
+
+button {
+    background:#315fa8;
+    color:white;
+    border:0;
+    padding:13px;
+    border-radius:9px;
+    width:100%;
+    margin:4px 0;
+}
+
+input, textarea, select {
+    width:100%;
+    padding:12px;
+    margin:8px 0;
+    border-radius:8px;
+    background:#111722;
+    color:white;
+    border:1px solid #414c62;
+}
+
+nav {
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>Family Guard</h1>
+<p>Central de segurança familiar</p>
+</header>
+
+<main>
+
+<div class="card">
+<h2>Bem-vindo!</h2>
+<p>Proteção e segurança familiar em um só lugar.</p>
+<p>O uso da supervisão deve ser transparente e autorizado.</p>
+</div>
+
+<div class="card">
+<h3>Áreas do aplicativo</h3>
+<nav>
+<button onclick="show('Pessoas e dispositivos')">Pessoas e dispositivos</button>
+<button onclick="show('Conversas e conteúdo')">Conversas</button>
+<button onclick="show('Fotos e vídeos')">Fotos e vídeos</button>
+<button onclick="show('Ameaças e assédio')">Ameaças e assédio</button>
+<button onclick="show('Localização')">Localização</button>
+<button onclick="show('Registros')">Registros</button>
+</nav>
+</div>
+
+<div class="card">
+<h3 id="section">Adicionar registro</h3>
+
+<select id="category">
+<option>Conversas e conteúdo</option>
+<option>Fotos e vídeos</option>
+<option>Chantagem ou sextorsão</option>
+<option>Ameaças e assédio</option>
+<option>Possível golpe</option>
+<option>Outro</option>
+</select>
+
+<textarea id="description"
+placeholder="Descreva o registro"></textarea>
+
+<select id="level">
+<option>Informativo</option>
+<option>Atenção</option>
+<option>Urgente</option>
+</select>
+
+<button onclick="addRecord()">Salvar registro</button>
+</div>
+
+<div class="card">
+<h3>Histórico</h3>
+<div id="records">Nenhum registro salvo.</div>
+</div>
+
+<p>Versão inicial: dados armazenados somente neste aparelho. Ainda não há GPS, sincronização entre celulares ou análise automática por IA.</p>
+
+</main>
+
+<script>
+function show(name) {
+    document.getElementById('section').textContent=name;
+}
+
+function getRecords() {
+    return JSON.parse(localStorage.getItem('fg_records') || '[]');
+}
+
+function addRecord() {
+    let description =
+        document.getElementById('description').value.trim();
+
+    if (!description) {
+        alert('Escreva uma descrição.');
+        return;
+    }
+
+    let records = getRecords();
+
+    records.unshift({
+        category:document.getElementById('category').value,
+        level:document.getElementById('level').value,
+        description:description
+    });
+
+    localStorage.setItem('fg_records',JSON.stringify(records));
+
+    document.getElementById('description').value='';
+
+    render();
+}
+
+function render() {
+    let records=getRecords();
+
+    document.getElementById('records').innerHTML =
+        records.length
+        ? records.map(r =>
+            '<p><b>'+escapeHTML(r.category)+'</b> — '+
+            escapeHTML(r.level)+'<br>'+
+            escapeHTML(r.description)+'</p>'
+          ).join('')
+        : 'Nenhum registro salvo.';
+}
+
+function escapeHTML(value) {
+    return String(value).replace(/[&<>"']/g, c => ({
+        '&':'&amp;',
+        '<':'&lt;',
+        '>':'&gt;',
+        '"':'&quot;',
+        "'":'&#39;'
+    }[c]));
+}
+
+render();
+</script>
+
+</body>
+</html>
